@@ -17,20 +17,17 @@ class RecycleitFunctionalTest(unittest.TestCase):
         self.browser.quit()
 
     def test_recycle_it(self):
-        # Alex hears about the new platform called recycle_it
-        # He goes online to check out their webpage
-        self.browser.get('http://localhost:8000')
+        # Alice hears about the new platform called recycle_it
+        # We go online to check out their webpage
+        self.browser.get('http://localhost:8000/')
 
-        # He notices the page title and header mention the company name
+        # We notice the page title and header mention the company name
         self.assertIn('Recycle It', self.browser.title)
-        self.fail('Finish the test!')
+        #self.fail('Finish the test!')
 
-        # He sees the login button
-
-
-if __name__ == '__main__':
-    unittest.main(warnings='ignore')
+        # We see the login button
 
 
 if __name__ == '__main__':
     unittest.main(warnings='ignore')
+
