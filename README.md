@@ -11,6 +11,8 @@ Users upload an image and the system returns the information it found.
 
 ## Installation
 
+Don't forget to install geckodriver to run tests!
+
 OS X & Linux:
 
 ```sh
