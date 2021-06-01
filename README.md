@@ -35,8 +35,8 @@ _For more examples and usage, please refer to the [Wiki][wiki]._
 
 ### Setting up workspace
 Create new Conda Env.  
-Pull from Remote / Main.
-
+Pull from Remote / Main.  
+**IMPORTANT** Ensure that you are always working on a branch, not MAIN.  
 Check PATH. If geckodriver not found, copy it to one of the directions in PATH.
 ```sh
 import sys
