@@ -1,10 +1,11 @@
-from django.urls import path
+from django.urls import path, re_path
 
 from . import views
+
 
 app_name = 'images'
 
 urlpatterns = [
-    path('upload/', views.ImageView.as_view(), name = 'upload')
+    re_path(r'^upload/$', views.ImageView.as_view(), name='upload')
 ]
 
