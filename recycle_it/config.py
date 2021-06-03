@@ -1,0 +1,1 @@
+image_endpoint = "http://localhost:8000/images/"
