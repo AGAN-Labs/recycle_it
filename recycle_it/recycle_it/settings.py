@@ -27,6 +27,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# User Added
+MEDIA_URL = '/images/'
+MEDIA_ROOT = BASE_DIR.joinpath("images_received")
 
 # Application definition
 
@@ -38,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'homepage.apps.HomepageConfig',
-    'images.apps.ImagesConfig'
+    'images.apps.ImagesConfig',
+    'rest_framework',
 
 ]
 
