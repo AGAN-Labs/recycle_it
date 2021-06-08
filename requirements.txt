@@ -1,2 +1,4 @@
 selenium==3.141.0
 Django==3.2.3
+djangorestframework==3.12.4
+pillow

@@ -12,17 +12,18 @@ Users upload an image and the system returns the information it found.
 ## Installation
 
 Don't forget to install geckodriver to run tests!
+If on OS X Catalina (10.15) or above, refer to the instructions [here](https://firefox-source-docs.mozilla.org/testing/geckodriver/Notarization.html) to install.
 
 OS X & Linux:
 
 ```sh
-pip setup.py requirements.txt
+pip install -r requirements.txt
 ```
 
 Windows:
 
 ```sh
-pip setup.py requirements.txt
+pip install -r requirements.txt
 ```
 
 ## Usage example
@@ -31,6 +32,26 @@ pip setup.py requirements.txt
 _For more examples and usage, please refer to the [Wiki][wiki]._
 
 ## Development setup
+
+### Setting up workspace
+Create new Conda Env.  
+Pull from Remote / Main.  
+**IMPORTANT** Ensure that you are always working on a branch, not MAIN.  
+Check PATH. If geckodriver not found, copy it to one of the directions in PATH.
+```sh
+import sys
+
+sys.path
+````
+Make sure to run migrations. In your local environment,
+first run:
+```sh
+python recycle_it/manage.py makemigrations  
+```
+Then run: 
+```sh
+python recycle_it/manage.py migrate
+```
 
 ### Tests
 To run end-to-end testing run:
@@ -42,6 +63,14 @@ To run webapp tests:
 
 ```sh
 python manage.py test homepage.tests
+```
+## Things to do when updating the project:
+Don't forget to update the requirements.txt file.
+Use pipreqs to update the requirements file.
+```sh
+pip install pipreqs
+
+pipreqs "./recycle_it --force --encoding=utf8"
 ```
 
 ## Release History
