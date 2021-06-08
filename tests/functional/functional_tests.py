@@ -1,5 +1,6 @@
 import unittest
 import platform
+import requests
 import pathlib
 
 from selenium import webdriver
@@ -10,7 +11,9 @@ class RecycleitFunctionalTest(unittest.TestCase):
     def setUp(self) -> None:
         self.args = None
         self.browser = webdriver.Firefox()
-
+        self.module_dir = pathlib.Path(__file__).parent.parent.parent
+        self.test_upload_file = self.module_dir.joinpath('data/images_received/test_data/20210601_152952.jpg')
+        print(self.test_upload_file)
         if 'darwin' in platform.platform().lower():
             print('Using Mac OS X settings!')
 
@@ -20,7 +23,8 @@ class RecycleitFunctionalTest(unittest.TestCase):
     def test_recycle_it(self):
         # Alice hears about the new platform called recycle_it
         # We go online to check out their webpage
-        self.browser.get('http://localhost:8000/')
+        url = 'http://localhost:8000/'
+        self.browser.get(url)
 
         # We notice the page title and header mention the company name
         self.assertIn('Recycle It', self.browser.title)
@@ -33,6 +37,11 @@ class RecycleitFunctionalTest(unittest.TestCase):
         self.assertIn("/images", image_endpoint)
 
         # We attempt to POST the image to the image endpoint
+        upload_url = url + 'images/upload/'
+        files = {'image_data': open(self.test_upload_file, 'rb')}
+        result = requests.post(upload_url, files=files)
+        self.assertEqual(result.status_code, 201)
+
 
         # We see a button for uploading a selected image
 
