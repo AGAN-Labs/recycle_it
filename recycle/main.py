@@ -76,6 +76,12 @@ def show_batch(dl):
 
 #Model Base
 
+""" 
+    Here we start to create the model base
+
+    This will help establish what the accuracy and losses for
+    each predicted calculation
+"""
 
 def accuracy(outputs, labels):
     _, preds = torch.max(outputs, dim=1)
@@ -129,6 +135,13 @@ model = ResNet()
 
 #lets use GPU here over CPU
 
+"""
+    We will be porting to GPU where possible since there is much more 
+    processing power there
+    
+    The code here is establishing a dataloader and device model
+"""
+
 def get_default_device():
     """Pick GPU if available, else CPU"""
     if torch.cuda.is_available():
@@ -170,6 +183,11 @@ to_device(model, device)
 ### Training the model
 
 #this is the function for fitting the model
+
+"""
+    Here we will create a function that will have both the 
+    training and validation phases
+"""
 
 @torch.no_grad()
 def evaluate(model, val_loader):
@@ -268,7 +286,9 @@ if __name__ == "__main__":
 
 ### Predicting External Images
 
-
+"""
+    Here we can add image data via url webscrapping
+"""
 
 import urllib.request
 urllib.request.urlretrieve("https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fengage.vic.gov.au%2Fapplication%2Ffiles%2F1415%2F0596%2F9236%2FDSC_0026.JPG&f=1&nofb=1", "plastic.jpg")
