@@ -76,6 +76,12 @@ def show_batch(dl):
 
 #Model Base
 
+""" 
+    Here we start to create the model base
+
+    This will help establish what the accuracy and losses for
+    each predicted calculation
+"""
 
 def accuracy(outputs, labels):
     _, preds = torch.max(outputs, dim=1)
@@ -129,6 +135,13 @@ model = ResNet()
 
 #lets use GPU here over CPU
 
+"""
+    We will be porting to GPU where possible since there is much more 
+    processing power there
+    
+    The code here is establishing a dataloader and device model
+"""
+
 def get_default_device():
     """Pick GPU if available, else CPU"""
     if torch.cuda.is_available():
@@ -170,6 +183,11 @@ to_device(model, device)
 ### Training the model
 
 #this is the function for fitting the model
+
+"""
+    Here we will create a function that will have both the 
+    training and validation phases
+"""
 
 @torch.no_grad()
 def evaluate(model, val_loader):
@@ -265,3 +283,37 @@ print('Label:', dataset.classes[label], ', Predicted:', predict_image(img, model
 
 if __name__ == "__main__":
     None
+
+### Predicting External Images
+
+"""
+    Here we can add image data via url webscrapping
+"""
+
+import urllib.request
+urllib.request.urlretrieve("https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fengage.vic.gov.au%2Fapplication%2Ffiles%2F1415%2F0596%2F9236%2FDSC_0026.JPG&f=1&nofb=1", "plastic.jpg")
+urllib.request.urlretrieve("https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fi.ebayimg.com%2Fimages%2Fi%2F291536274730-0-1%2Fs-l1000.jpg&f=1&nofb=1", "cardboard.jpg")
+urllib.request.urlretrieve("https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%3Fid%3DOIP.2F0uH6BguQMctAYEJ-s-1gHaHb%26pid%3DApi&f=1", "cans.jpg")
+urllib.request.urlretrieve("https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftinytrashcan.com%2Fwp-content%2Fuploads%2F2018%2F08%2Ftiny-trash-can-bulk-wine-bottle.jpg&f=1&nofb=1", "wine-trash.jpg")
+urllib.request.urlretrieve("http://ourauckland.aucklandcouncil.govt.nz/media/7418/38-94320.jpg", "paper-trash.jpg")
+
+
+
+loaded_model = model
+
+from PIL import Image
+from pathlib import Path
+
+def predict_external_image(image_name):
+    image = Image.open(Path('./' + image_name))
+
+    example_image = transformations(image)
+    plt.imshow(example_image.permute(1, 2, 0))
+    print("The image resembles", predict_image(example_image, loaded_model) + ".")
+
+predict_external_image('cans.jpg')
+predict_external_image('cardboard.jpg')
+predict_external_image('paper-trash.jpg')
+predict_external_image('wine-trash.jpg')
+predict_external_image('plastic.jpg')
+
