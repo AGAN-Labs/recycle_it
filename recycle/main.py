@@ -1,4 +1,3 @@
-
 import os
 import torch
 import torchvision
@@ -272,7 +271,7 @@ def predict_image(img, model, dataset, device):
 
 
 def run():
-    data_dir = 'D:\Garbage classification\Garbage classification'
+    data_dir = Path(__file__).parent.parent.joinpath('data/garbage_classification/')
     transformations = transforms.Compose([transforms.Resize((256, 256)), transforms.ToTensor()])
     dataset = get_data(data_dir, transformations)
     classes = os.listdir(data_dir)
