@@ -1,4 +1,3 @@
-
 import os
 import torch
 import torchvision
@@ -6,63 +5,63 @@ from torch.utils.data import random_split
 import torchvision.models as models
 import torch.nn as nn
 import torch.nn.functional as F
+from torchvision.datasets import ImageFolder
+import torchvision.transforms as transforms
+import matplotlib.pyplot as plt
+from torchvision.utils import make_grid
+from torch.utils.data.dataloader import DataLoader
+import urllib.request
+from PIL import Image
+from pathlib import Path
 
-data_dir  = 'D:\Garbage classification\Garbage classification'
 
-classes = os.listdir(data_dir)
-print(classes)
 
 #Transformation
 
 #applying transformations to the dataset and importing it for use
 
-from torchvision.datasets import ImageFolder
-import torchvision.transforms as transforms
-
-transformations = transforms.Compose([transforms.Resize((256, 256)), transforms.ToTensor()])
-
-dataset = ImageFolder(data_dir, transform = transformations)
+def get_data(data_dir, transformations):
+    dataset = ImageFolder(data_dir, transform = transformations)
+    return dataset
 
 #Creating a helper function to see the image and the label
 
-import matplotlib.pyplot as plt
 
-def show_sample(img, label):
+
+def show_sample(img, label, dataset):
     print("Label:", dataset.classes[label], "(Class No: "+ str(label) + ")")
     plt.imshow(img.permute(1, 2, 0))
 
 
-img, label = dataset[12]
-show_sample(img, label)
+# img, label = dataset[12]
+# show_sample(img, label)
 
 
-#Loading and Splitting  Data
+#Loading and Splitting Data
 
 
 
-random_seed = 42
-torch.manual_seed(random_seed)
+
+
 
 #We'll split the dataset into training, validation, and test sets.
 
-train_ds, val_ds, test_ds = random_split(dataset, [1593, 176, 758])
-len(train_ds), len(val_ds), len(test_ds)
 
-
-from torch.utils.data.dataloader import DataLoader
-batch_size = 32
+def get_train_test_split(dataset, random_seed=42):
+    torch.manual_seed(random_seed)
+    train_ds, val_ds, test_ds = random_split(dataset, [1593, 176, 758])
+    len(train_ds), len(val_ds), len(test_ds)
+    return train_ds, val_ds, test_ds
 
 
 #Now, we'll create training and validation dataloaders using DataLoader
 
-train_dl = DataLoader(train_ds, batch_size, shuffle = True, num_workers = 0, pin_memory = True)
-val_dl = DataLoader(val_ds, batch_size*2, num_workers = 0, pin_memory = True)
+def get_dataloaders(train_ds, val_ds, batch_size=32):
+    train_dl = DataLoader(train_ds, batch_size, shuffle = True, num_workers = 0, pin_memory = True)
+    val_dl = DataLoader(val_ds, batch_size*2, num_workers = 0, pin_memory = True)
+    return train_dl, val_dl
 
 #This helper function visualizes batches
-
-
-
-from torchvision.utils import make_grid
 
 def show_batch(dl):
     for images, labels in dl:
@@ -117,19 +116,20 @@ class ImageClassificationBase(nn.Module):
 #We use ResNet50 to classify images
 
 class ResNet(ImageClassificationBase):
-    def __init__(self):
+    def __init__(self, num_classes):
         super().__init__()
         # Use a pretrained model
         self.network = models.resnet50(pretrained=True)
         # Replace last layer
         num_ftrs = self.network.fc.in_features
-        self.network.fc = nn.Linear(num_ftrs, len(dataset.classes))
+        self.network.fc = nn.Linear(num_ftrs, num_classes)
 
     def forward(self, xb):
         return torch.sigmoid(self.network(xb))
 
-
-model = ResNet()
+def get_model(num_classes):
+    model = ResNet(num_classes)
+    return model
 
 ### Porting to GPU
 
@@ -173,12 +173,16 @@ class DeviceDataLoader():
         """Number of batches"""
         return len(self.dl)
 
-device = get_default_device()
-device
 
-train_dl = DeviceDataLoader(train_dl, device)
-val_dl = DeviceDataLoader(val_dl, device)
-to_device(model, device)
+
+def get_device_data_loader(train_dl, val_dl, device):
+    train_dl = DeviceDataLoader(train_dl, device)
+    val_dl = DeviceDataLoader(val_dl, device)
+    return train_dl, val_dl
+
+def send_model_to_device(model, device):
+    to_device(model, device)
+
 
 ### Training the model
 
@@ -199,35 +203,30 @@ def fit(epochs, lr, model, train_loader, val_loader, opt_func=torch.optim.SGD):
     history = []
     optimizer = opt_func(model.parameters(), lr)
     for epoch in range(epochs):
+        print(epoch)
         # Training Phase
         model.train()
         train_losses = []
         for batch in train_loader:
+            print("on the next batch")
             loss = model.training_step(batch)
             train_losses.append(loss)
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
         # Validation phase
+        print('starting validation phase')
         result = evaluate(model, val_loader)
         result['train_loss'] = torch.stack(train_losses).mean().item()
         model.epoch_end(epoch, result)
         history.append(result)
     return history
 
-model = to_device(ResNet(), device)
 
-
-
-evaluate(model, val_dl)
 
 ## Let's train the model
 
-num_epochs = 8
-opt_func = torch.optim.Adam
-lr = 5.5e-5
 
-history = fit(num_epochs, lr, model, train_dl, val_dl, opt_func)
 
 def plot_accuracies(history):
     accuracies = [x['val_acc'] for x in history]
@@ -236,7 +235,7 @@ def plot_accuracies(history):
     plt.ylabel('accuracy')
     plt.title('Accuracy vs. No. of epochs');
 
-plot_accuracies(history)
+
 
 
 
@@ -251,13 +250,13 @@ def plot_losses(history):
     plt.legend(['Training', 'Validation'])
     plt.title('Loss vs. No. of epochs');
 
-plot_losses(history)
+
 
 ## Visualizing Predictions
 
 
 
-def predict_image(img, model):
+def predict_image(img, model, dataset, device):
     # Convert to a batch of 1
     xb = to_device(img.unsqueeze(0), device)
     # Get predictions from model
@@ -269,51 +268,100 @@ def predict_image(img, model):
 
 # Let us see the model's predictions on the test dataset:
 
-img, label = test_ds[17]
-plt.imshow(img.permute(1, 2, 0))
-print('Label:', dataset.classes[label], ', Predicted:', predict_image(img, model))
-
-img, label = test_ds[23]
-plt.imshow(img.permute(1, 2, 0))
-print('Label:', dataset.classes[label], ', Predicted:', predict_image(img, model))
-
-img, label = test_ds[51]
-plt.imshow(img.permute(1, 2, 0))
-print('Label:', dataset.classes[label], ', Predicted:', predict_image(img, model))
-
-if __name__ == "__main__":
-    None
-
-### Predicting External Images
-
-"""
-    Here we can add image data via url webscrapping
-"""
-
-import urllib.request
-urllib.request.urlretrieve("https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fengage.vic.gov.au%2Fapplication%2Ffiles%2F1415%2F0596%2F9236%2FDSC_0026.JPG&f=1&nofb=1", "plastic.jpg")
-urllib.request.urlretrieve("https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fi.ebayimg.com%2Fimages%2Fi%2F291536274730-0-1%2Fs-l1000.jpg&f=1&nofb=1", "cardboard.jpg")
-urllib.request.urlretrieve("https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%3Fid%3DOIP.2F0uH6BguQMctAYEJ-s-1gHaHb%26pid%3DApi&f=1", "cans.jpg")
-urllib.request.urlretrieve("https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftinytrashcan.com%2Fwp-content%2Fuploads%2F2018%2F08%2Ftiny-trash-can-bulk-wine-bottle.jpg&f=1&nofb=1", "wine-trash.jpg")
-urllib.request.urlretrieve("http://ourauckland.aucklandcouncil.govt.nz/media/7418/38-94320.jpg", "paper-trash.jpg")
 
 
+def run():
+    data_dir = Path(__file__).parent.parent.joinpath('data/garbage_classification/')
+    transformations = transforms.Compose([transforms.Resize((256, 256)), transforms.ToTensor()])
+    dataset = get_data(data_dir, transformations)
+    classes = os.listdir(data_dir)
+    print(classes)
+    print("get_train_test_split")
+    train_ds, val_ds, test_ds = get_train_test_split(dataset)
+    print("get_dataloaders")
+    train_dl, val_dl = get_dataloaders(train_ds, val_ds)
 
-loaded_model = model
 
-from PIL import Image
-from pathlib import Path
+    num_classes = len(dataset.classes)
+    print("get_model")
+    model = get_model(num_classes)
+    print("get_default_device")
+    device = get_default_device()
+    print("get_device_dataloader")
+    train_dl, val_dl = get_device_data_loader(train_dl, val_dl, device)
+    send_model_to_device(model, device)
 
-def predict_external_image(image_name):
+
+    model = to_device(get_model(num_classes), device)
+    print("evaluate")
+    evaluate_results = evaluate(model, val_dl)
+
+    num_epochs = 8
+    opt_func = torch.optim.Adam
+    lr = 5.5e-5
+    print("history")
+    history = fit(num_epochs, lr, model, train_dl, val_dl, opt_func)
+    print("accuracies")
+    plot_accuracies(history)
+    print("losses")
+    plot_losses(history)
+
+    img, label = test_ds[17]
+    plt.imshow(img.permute(1, 2, 0))
+    print('Label:', dataset.classes[label], ', Predicted:', predict_image(img, model, dataset, device))
+
+    img, label = test_ds[23]
+    plt.imshow(img.permute(1, 2, 0))
+    print('Label:', dataset.classes[label], ', Predicted:', predict_image(img, model, dataset, device))
+
+    img, label = test_ds[51]
+    plt.imshow(img.permute(1, 2, 0))
+    print('Label:', dataset.classes[label], ', Predicted:', predict_image(img, model, dataset, device))
+    get_sample_images()
+    predict_external_image('cans.jpg', transformations, model, dataset, device)
+    predict_external_image('cardboard.jpg', transformations, model, dataset, device)
+    predict_external_image('paper-trash.jpg', transformations, model, dataset, device)
+    predict_external_image('wine-trash.jpg', transformations, model, dataset, device)
+    predict_external_image('plastic.jpg', transformations, model, dataset, device)
+    print('end')
+    return
+
+def predict_external_image(image_name, transformations, model, dataset, device):
     image = Image.open(Path('./' + image_name))
 
     example_image = transformations(image)
     plt.imshow(example_image.permute(1, 2, 0))
-    print("The image resembles", predict_image(example_image, loaded_model) + ".")
+    print("The image resembles", predict_image(example_image, model, dataset, device) + ".")
 
-predict_external_image('cans.jpg')
-predict_external_image('cardboard.jpg')
-predict_external_image('paper-trash.jpg')
-predict_external_image('wine-trash.jpg')
-predict_external_image('plastic.jpg')
+def get_sample_images():
+    urllib.request.urlretrieve(
+        "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fengage.vic.gov.au%2Fapplication%2Ffiles%2F1415%2F0596%2F9236%2FDSC_0026.JPG&f=1&nofb=1",
+        "plastic.jpg")
+    urllib.request.urlretrieve(
+        "https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fi.ebayimg.com%2Fimages%2Fi%2F291536274730-0-1%2Fs-l1000.jpg&f=1&nofb=1",
+        "cardboard.jpg")
+    urllib.request.urlretrieve(
+        "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%3Fid%3DOIP.2F0uH6BguQMctAYEJ-s-1gHaHb%26pid%3DApi&f=1",
+        "cans.jpg")
+    urllib.request.urlretrieve(
+        "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftinytrashcan.com%2Fwp-content%2Fuploads%2F2018%2F08%2Ftiny-trash-can-bulk-wine-bottle.jpg&f=1&nofb=1",
+        "wine-trash.jpg")
+    urllib.request.urlretrieve("http://ourauckland.aucklandcouncil.govt.nz/media/7418/38-94320.jpg", "paper-trash.jpg")
+
+if __name__ == "__main__":
+    run()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
