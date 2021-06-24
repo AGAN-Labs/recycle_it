@@ -301,6 +301,10 @@ def run():
     lr = 5.5e-5
     print("history")
     history = fit(num_epochs, lr, model, train_dl, val_dl, opt_func)
+    print("saving model")
+    data_model_path = Path(__file__).parent.parent.joinpath('data/models/')
+    save_model(model, data_model_path)
+
     print("accuracies")
     plot_accuracies(history)
     print("losses")
@@ -332,6 +336,9 @@ def predict_external_image(image_name, transformations, model, dataset, device):
     example_image = transformations(image)
     plt.imshow(example_image.permute(1, 2, 0))
     print("The image resembles", predict_image(example_image, model, dataset, device) + ".")
+
+def save_model(model, save_path):
+    torch.save(model.state.dict(), save_path)
 
 def get_sample_images():
     urllib.request.urlretrieve(
