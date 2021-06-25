@@ -338,7 +338,7 @@ def predict_external_image(image_name, transformations, model, dataset, device):
     print("The image resembles", predict_image(example_image, model, dataset, device) + ".")
 
 def save_model(model, save_path):
-    torch.save(model.state.dict(), save_path)
+    torch.save(model.state_dict(), save_path)
 
 def get_sample_images():
     urllib.request.urlretrieve(
