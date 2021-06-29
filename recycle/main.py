@@ -318,7 +318,8 @@ def run():
     if config.debug_flag:
         print("saving model")
     data_model_path = config.data_model_path
-    save_model(model, data_model_path)
+    if config.save_model:
+        save_model(model, data_model_path)
 
     if config.debug_flag:
         print("accuracies")
@@ -342,7 +343,7 @@ def run():
     if config.debug_flag:
         print('Label:', dataset.classes[label], ', Predicted:', predict_image(img, model, dataset, device))
 
-    get_sample_images()
+    get_sample_images(image_dir=config.external_images)
     predict_external_image('cans.jpg', transformations, model, dataset, device)
     predict_external_image('cardboard.jpg', transformations, model, dataset, device)
     predict_external_image('paper-trash.jpg', transformations, model, dataset, device)
@@ -362,20 +363,22 @@ def predict_external_image(image_name, transformations, model, dataset, device):
 def save_model(model, save_path):
     torch.save(model.state_dict(), save_path)
 
-def get_sample_images():
+def get_sample_images(image_dir):
+    image_path = Path(image_dir)
     urllib.request.urlretrieve(
         "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fengage.vic.gov.au%2Fapplication%2Ffiles%2F1415%2F0596%2F9236%2FDSC_0026.JPG&f=1&nofb=1",
-        "plastic.jpg")
+        image_path.joinpath("plastic.jpg"))
     urllib.request.urlretrieve(
         "https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fi.ebayimg.com%2Fimages%2Fi%2F291536274730-0-1%2Fs-l1000.jpg&f=1&nofb=1",
-        "cardboard.jpg")
+        image_path.joinpath("cardboard.jpg"))
     urllib.request.urlretrieve(
         "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%3Fid%3DOIP.2F0uH6BguQMctAYEJ-s-1gHaHb%26pid%3DApi&f=1",
-        "cans.jpg")
+        image_path.joinpath("cans.jpg"))
     urllib.request.urlretrieve(
         "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftinytrashcan.com%2Fwp-content%2Fuploads%2F2018%2F08%2Ftiny-trash-can-bulk-wine-bottle.jpg&f=1&nofb=1",
-        "wine-trash.jpg")
-    urllib.request.urlretrieve("http://ourauckland.aucklandcouncil.govt.nz/media/7418/38-94320.jpg", "paper-trash.jpg")
+        image_path.joinpath("wine-trash.jpg"))
+    urllib.request.urlretrieve("http://ourauckland.aucklandcouncil.govt.nz/media/7418/38-94320.jpg",
+        image_path.joinpath("paper-trash.jpg"))
 
 if __name__ == "__main__":
     run()
