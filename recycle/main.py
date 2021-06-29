@@ -56,9 +56,11 @@ def get_train_test_split(dataset, random_seed=42):
 
 #Now, we'll create training and validation dataloaders using DataLoader
 
-def get_dataloaders(train_ds, val_ds, batch_size=32, train_num_workers = 0, validation_num_workers = 0):
-    train_dl = DataLoader(train_ds, batch_size, shuffle = True, num_workers = train_num_workers, pin_memory = True)
-    val_dl = DataLoader(val_ds, batch_size*2, num_workers = validation_num_workers, pin_memory = True)
+def get_dataloaders(train_ds, val_ds, batch_size=32, train_num_workers = 0, validation_num_workers = 0,
+                    shuffle_training = True, pin_memory = True):
+    train_dl = DataLoader(train_ds, batch_size, shuffle = shuffle_training, num_workers = train_num_workers,
+                          pin_memory = pin_memory)
+    val_dl = DataLoader(val_ds, batch_size*2, num_workers = validation_num_workers, pin_memory = pin_memory)
     return train_dl, val_dl
 
 #This helper function visualizes batches
@@ -282,8 +284,11 @@ def run():
     if config.debug_flag:
         print("get_dataloaders")
     train_dl, val_dl = get_dataloaders(train_ds, val_ds,
-                                       train_num_workers= config.train_num_workers,
-                                       validation_num_workers= config.validation_num_workers)
+                                       train_num_workers=config.train_num_workers,
+                                       validation_num_workers=config.validation_num_workers,
+                                       batch_size=config.batch_size,
+                                       pin_memory=config.pin_memory,
+                                       shuffle_training=config.shuffle_training)
 
 
     num_classes = len(dataset.classes)
