@@ -12,7 +12,7 @@ class RecycleitFunctionalTest(unittest.TestCase):
         self.args = None
         self.browser = webdriver.Firefox()
         self.module_dir = pathlib.Path(__file__).parent.parent.parent
-        self.test_upload_file = self.module_dir.joinpath('data/images_received/test_data/20210601_152952.jpg')
+        self.test_upload_file = recycle_it_config.test_image_path
         print(self.test_upload_file)
         if 'darwin' in platform.platform().lower():
             print('Using Mac OS X settings!')
