@@ -35,7 +35,9 @@ _For more examples and usage, please refer to the [Wiki][wiki]._
 
 ### Setting up workspace
 Create new Conda Env.  
-Pull from Remote / Main.  
+Pull from Remote / Main. 
+Make sure that you create the recycle_it/data & recycle_it/data/models folders 
+be sure to configure the config.py for each module you are running 
 **IMPORTANT** Ensure that you are always working on a branch, not MAIN.  
 Check PATH. If geckodriver not found, copy it to one of the directions in PATH.
 ```sh
