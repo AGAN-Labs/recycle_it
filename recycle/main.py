@@ -13,7 +13,7 @@ from torch.utils.data.dataloader import DataLoader
 import urllib.request
 from PIL import Image
 from pathlib import Path
-
+import recycle.config as config
 
 
 #Transformation
@@ -56,9 +56,9 @@ def get_train_test_split(dataset, random_seed=42):
 
 #Now, we'll create training and validation dataloaders using DataLoader
 
-def get_dataloaders(train_ds, val_ds, batch_size=32):
-    train_dl = DataLoader(train_ds, batch_size, shuffle = True, num_workers = 0, pin_memory = True)
-    val_dl = DataLoader(val_ds, batch_size*2, num_workers = 0, pin_memory = True)
+def get_dataloaders(train_ds, val_ds, batch_size=32, train_num_workers = 0, validation_num_workers = 0):
+    train_dl = DataLoader(train_ds, batch_size, shuffle = True, num_workers = train_num_workers, pin_memory = True)
+    val_dl = DataLoader(val_ds, batch_size*2, num_workers = validation_num_workers, pin_memory = True)
     return train_dl, val_dl
 
 #This helper function visualizes batches
@@ -271,63 +271,80 @@ def predict_image(img, model, dataset, device):
 
 
 def run():
-    data_dir = Path(__file__).parent.parent.joinpath('data/garbage_classification/')
+    data_dir = config.data_dir
     transformations = transforms.Compose([transforms.Resize((256, 256)), transforms.ToTensor()])
     dataset = get_data(data_dir, transformations)
     classes = os.listdir(data_dir)
-    print(classes)
-    print("get_train_test_split")
+    if config.debug_flag:
+        print(classes)
+        print("get_train_test_split")
     train_ds, val_ds, test_ds = get_train_test_split(dataset)
-    print("get_dataloaders")
-    train_dl, val_dl = get_dataloaders(train_ds, val_ds)
+    if config.debug_flag:
+        print("get_dataloaders")
+    train_dl, val_dl = get_dataloaders(train_ds, val_ds,
+                                       train_num_workers= config.train_num_workers,
+                                       validation_num_workers= config.validation_num_workers)
 
 
     num_classes = len(dataset.classes)
-    print("get_model")
+    if config.debug_flag:
+        print("get_model")
     model = get_model(num_classes)
-    print("get_default_device")
+    if config.debug_flag:
+        print("get_default_device")
     device = get_default_device()
-    print("get_device_dataloader")
+    if config.debug_flag:
+        print("get_device_dataloader")
     train_dl, val_dl = get_device_data_loader(train_dl, val_dl, device)
     send_model_to_device(model, device)
 
 
     model = to_device(get_model(num_classes), device)
-    print("evaluate")
+    if config.debug_flag:
+        print("evaluate")
     evaluate_results = evaluate(model, val_dl)
 
-    num_epochs = 8
+    num_epochs = config.num_epochs
     opt_func = torch.optim.Adam
-    lr = 5.5e-5
-    print("history")
+    lr = config.learning_rate
+    if config.debug_flag:
+        print("history")
     history = fit(num_epochs, lr, model, train_dl, val_dl, opt_func)
-    print("saving model")
-    data_model_path = Path(__file__).parent.parent.joinpath('data/models/')
+    if config.debug_flag:
+        print("saving model")
+    data_model_path = config.data_model_path
     save_model(model, data_model_path)
 
-    print("accuracies")
+    if config.debug_flag:
+        print("accuracies")
     plot_accuracies(history)
-    print("losses")
+    if config.debug_flag:
+        print("losses")
     plot_losses(history)
 
     img, label = test_ds[17]
     plt.imshow(img.permute(1, 2, 0))
-    print('Label:', dataset.classes[label], ', Predicted:', predict_image(img, model, dataset, device))
+    if config.debug_flag:
+        print('Label:', dataset.classes[label], ', Predicted:', predict_image(img, model, dataset, device))
 
     img, label = test_ds[23]
     plt.imshow(img.permute(1, 2, 0))
-    print('Label:', dataset.classes[label], ', Predicted:', predict_image(img, model, dataset, device))
+    if config.debug_flag:
+        print('Label:', dataset.classes[label], ', Predicted:', predict_image(img, model, dataset, device))
 
     img, label = test_ds[51]
     plt.imshow(img.permute(1, 2, 0))
-    print('Label:', dataset.classes[label], ', Predicted:', predict_image(img, model, dataset, device))
+    if config.debug_flag:
+        print('Label:', dataset.classes[label], ', Predicted:', predict_image(img, model, dataset, device))
+
     get_sample_images()
     predict_external_image('cans.jpg', transformations, model, dataset, device)
     predict_external_image('cardboard.jpg', transformations, model, dataset, device)
     predict_external_image('paper-trash.jpg', transformations, model, dataset, device)
     predict_external_image('wine-trash.jpg', transformations, model, dataset, device)
     predict_external_image('plastic.jpg', transformations, model, dataset, device)
-    print('end')
+    if config.debug_flag:
+        print('end')
     return
 
 def predict_external_image(image_name, transformations, model, dataset, device):
