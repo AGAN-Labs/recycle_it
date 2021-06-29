@@ -70,7 +70,7 @@ Use pipreqs to update the requirements file.
 ```sh
 pip install pipreqs
 
-pipreqs "./recycle_it --force --encoding=utf8"
+pipreqs --force --encoding=utf8
 ```
 
 ## Release History

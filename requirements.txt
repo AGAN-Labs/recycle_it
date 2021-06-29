@@ -1,4 +1,8 @@
-selenium==3.141.0
+requests==2.25.1
 Django==3.2.3
+torch==1.9.0
+matplotlib==3.4.2
+torchvision==0.10.0
+selenium==3.141.0
 djangorestframework==3.12.4
-pillow
+Pillow==8.2.0
