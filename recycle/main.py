@@ -346,14 +346,13 @@ def run():
 
     get_sample_images(image_dir=config.external_images)
 
-    try:
-        predict_external_image(config.external_images, 'cans.jpg', transformations, model, dataset, device)
-        predict_external_image(config.external_images, 'cardboard.jpg', transformations, model, dataset, device)
-        predict_external_image(config.external_images, 'paper_trash.jpg', transformations, model, dataset, device)
-        predict_external_image(config.external_images, 'wine_trash.jpg', transformations, model, dataset, device)
-        predict_external_image(config.external_images, 'plastic.jpg', transformations, model, dataset, device)
-    except Exception as e:
-        print(traceback.format_exc())
+    img_list = ['cans.jpg', 'cardboard.jpg', 'paper_trash.jpg', 'wine_trash.jpg', 'plastic.jpg']
+
+    for img in img_list:
+        try:
+            predict_external_image(config.external_images, img, transformations, model, dataset, device)
+        except Exception as e:
+            print(traceback.format_exc())
 
     if config.debug_flag:
         print('end')
