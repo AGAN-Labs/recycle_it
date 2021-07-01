@@ -349,8 +349,8 @@ def run():
     try:
         predict_external_image(config.external_images, 'cans.jpg', transformations, model, dataset, device)
         predict_external_image(config.external_images, 'cardboard.jpg', transformations, model, dataset, device)
-        predict_external_image(config.external_images, 'paper-trash.jpg', transformations, model, dataset, device)
-        predict_external_image(config.external_images, 'wine-trash.jpg', transformations, model, dataset, device)
+        predict_external_image(config.external_images, 'paper_trash.jpg', transformations, model, dataset, device)
+        predict_external_image(config.external_images, 'wine_trash.jpg', transformations, model, dataset, device)
         predict_external_image(config.external_images, 'plastic.jpg', transformations, model, dataset, device)
     except Exception as e:
         print(traceback.format_exc())
@@ -386,9 +386,9 @@ def get_sample_images(image_dir):
         image_path.joinpath("cans.jpg"))
     urllib.request.urlretrieve(
         "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftinytrashcan.com%2Fwp-content%2Fuploads%2F2018%2F08%2Ftiny-trash-can-bulk-wine-bottle.jpg&f=1&nofb=1",
-        image_path.joinpath("wine-trash.jpg"))
+        image_path.joinpath("wine_trash.jpg"))
     urllib.request.urlretrieve("http://ourauckland.aucklandcouncil.govt.nz/media/7418/38-94320.jpg",
-        image_path.joinpath("paper-trash.jpg"))
+        image_path.joinpath("paper_trash.jpg"))
 
 if __name__ == "__main__":
     run()
