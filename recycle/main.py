@@ -14,6 +14,7 @@ import urllib.request
 from PIL import Image
 from pathlib import Path
 import recycle.config as config
+import traceback
 
 
 #Transformation
@@ -344,17 +345,26 @@ def run():
         print('Label:', dataset.classes[label], ', Predicted:', predict_image(img, model, dataset, device))
 
     get_sample_images(image_dir=config.external_images)
-    predict_external_image(config.external_images, 'cans.jpg', transformations, model, dataset, device)
-    predict_external_image(config.external_images, 'cardboard.jpg', transformations, model, dataset, device)
-    predict_external_image(config.external_images, 'paper-trash.jpg', transformations, model, dataset, device)
-    predict_external_image(config.external_images, 'wine-trash.jpg', transformations, model, dataset, device)
-    predict_external_image(config.external_images, 'plastic.jpg', transformations, model, dataset, device)
+
+    try:
+        predict_external_image(config.external_images, 'cans.jpg', transformations, model, dataset, device)
+        predict_external_image(config.external_images, 'cardboard.jpg', transformations, model, dataset, device)
+        predict_external_image(config.external_images, 'paper-trash.jpg', transformations, model, dataset, device)
+        predict_external_image(config.external_images, 'wine-trash.jpg', transformations, model, dataset, device)
+        predict_external_image(config.external_images, 'plastic.jpg', transformations, model, dataset, device)
+    except Exception as e:
+        print(traceback.format_exc())
+
     if config.debug_flag:
         print('end')
     return
 
 def predict_external_image(image_dir, image_name, transformations, model, dataset, device):
-    image = Image.open(Path(image_dir).joinpath(image_name))
+    img_path = Path(image_dir).joinpath(image_name)
+    if img_path.exists():
+        image = Image.open(img_path)
+    else:
+        raise NotImplementedError()
 
     example_image = transformations(image)
     plt.imshow(example_image.permute(1, 2, 0))
