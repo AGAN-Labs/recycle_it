@@ -344,17 +344,17 @@ def run():
         print('Label:', dataset.classes[label], ', Predicted:', predict_image(img, model, dataset, device))
 
     get_sample_images(image_dir=config.external_images)
-    predict_external_image('cans.jpg', transformations, model, dataset, device)
-    predict_external_image('cardboard.jpg', transformations, model, dataset, device)
-    predict_external_image('paper-trash.jpg', transformations, model, dataset, device)
-    predict_external_image('wine-trash.jpg', transformations, model, dataset, device)
-    predict_external_image('plastic.jpg', transformations, model, dataset, device)
+    predict_external_image(config.external_images, 'cans.jpg', transformations, model, dataset, device)
+    predict_external_image(config.external_images, 'cardboard.jpg', transformations, model, dataset, device)
+    predict_external_image(config.external_images, 'paper-trash.jpg', transformations, model, dataset, device)
+    predict_external_image(config.external_images, 'wine-trash.jpg', transformations, model, dataset, device)
+    predict_external_image(config.external_images, 'plastic.jpg', transformations, model, dataset, device)
     if config.debug_flag:
         print('end')
     return
 
-def predict_external_image(image_name, transformations, model, dataset, device):
-    image = Image.open(Path('./' + image_name))
+def predict_external_image(image_dir, image_name, transformations, model, dataset, device):
+    image = Image.open(Path(image_dir).joinpath(image_name))
 
     example_image = transformations(image)
     plt.imshow(example_image.permute(1, 2, 0))
