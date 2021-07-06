@@ -184,7 +184,8 @@ def get_device_data_loader(train_dl, val_dl, device):
     return train_dl, val_dl
 
 def send_model_to_device(model, device):
-    to_device(model, device)
+    return to_device(model, device)
+
 
 
 ### Training the model
@@ -302,7 +303,7 @@ def run():
     if config.debug_flag:
         print("get_device_dataloader")
     train_dl, val_dl = get_device_data_loader(train_dl, val_dl, device)
-    send_model_to_device(model, device)
+    model = send_model_to_device(model, device)
 
 
     # model = to_device(get_model(num_classes), device)
