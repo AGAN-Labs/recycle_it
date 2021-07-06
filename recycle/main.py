@@ -374,10 +374,11 @@ def predict_external_image(image_dir, image_name, transformations, model, datase
     print("The image resembles", predict_image(example_image, model, dataset, device) + ".")
 
 def save_model(model, save_path):
-    torch.save(model.state_dict(), save_path)
+    torch.save(model, save_path)
 
 def load_model(load_path):
-    torch.load(load_path)
+    model = torch.load(load_path)
+    model.eval()
 
 def get_sample_images(image_dir):
     image_path = Path(image_dir)
