@@ -14,6 +14,7 @@ import urllib.request
 from PIL import Image
 from pathlib import Path
 import recycle.config as config
+import traceback
 
 
 #Transformation
@@ -344,17 +345,25 @@ def run():
         print('Label:', dataset.classes[label], ', Predicted:', predict_image(img, model, dataset, device))
 
     get_sample_images(image_dir=config.external_images)
-    predict_external_image('cans.jpg', transformations, model, dataset, device)
-    predict_external_image('cardboard.jpg', transformations, model, dataset, device)
-    predict_external_image('paper-trash.jpg', transformations, model, dataset, device)
-    predict_external_image('wine-trash.jpg', transformations, model, dataset, device)
-    predict_external_image('plastic.jpg', transformations, model, dataset, device)
+
+    img_list = ['cans.jpg', 'cardboard.jpg', 'paper_trash.jpg', 'wine_trash.jpg', 'plastic.jpg']
+
+    for img in img_list:
+        try:
+            predict_external_image(config.external_images, img, transformations, model, dataset, device)
+        except Exception as e:
+            print(traceback.format_exc())
+
     if config.debug_flag:
         print('end')
     return
 
-def predict_external_image(image_name, transformations, model, dataset, device):
-    image = Image.open(Path('./' + image_name))
+def predict_external_image(image_dir, image_name, transformations, model, dataset, device):
+    img_path = Path(image_dir).joinpath(image_name)
+    if img_path.exists():
+        image = Image.open(img_path)
+    else:
+        raise NotImplementedError()
 
     example_image = transformations(image)
     plt.imshow(example_image.permute(1, 2, 0))
@@ -376,9 +385,9 @@ def get_sample_images(image_dir):
         image_path.joinpath("cans.jpg"))
     urllib.request.urlretrieve(
         "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftinytrashcan.com%2Fwp-content%2Fuploads%2F2018%2F08%2Ftiny-trash-can-bulk-wine-bottle.jpg&f=1&nofb=1",
-        image_path.joinpath("wine-trash.jpg"))
+        image_path.joinpath("wine_trash.jpg"))
     urllib.request.urlretrieve("http://ourauckland.aucklandcouncil.govt.nz/media/7418/38-94320.jpg",
-        image_path.joinpath("paper-trash.jpg"))
+        image_path.joinpath("paper_trash.jpg"))
 
 if __name__ == "__main__":
     run()

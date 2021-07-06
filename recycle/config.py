@@ -11,6 +11,6 @@ num_epochs = 8
 learning_rate = 5.5e-5
 shuffle_training = True
 pin_memory = True
-batch_size = 32
+batch_size = 16
 save_model = True
 external_images = Path(__file__).parent.parent.joinpath('data/external_images/')
