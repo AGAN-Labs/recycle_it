@@ -313,21 +313,24 @@ def run():
     num_epochs = config.num_epochs
     opt_func = torch.optim.Adam
     lr = config.learning_rate
-    if config.debug_flag:
-        print("history")
-    history = fit(num_epochs, lr, model, train_dl, val_dl, opt_func)
-    if config.debug_flag:
-        print("saving model")
-    data_model_path = config.data_model_path
-    if config.save_model:
-        save_model(model, data_model_path)
-
-    if config.debug_flag:
-        print("accuracies")
-    plot_accuracies(history)
-    if config.debug_flag:
-        print("losses")
-    plot_losses(history)
+    if config.load_model:
+        print("load_model")
+        load_model(config.load_data_path)
+    else:
+        if config.debug_flag:
+            print("history")
+        history = fit(num_epochs, lr, model, train_dl, val_dl, opt_func)
+        if config.debug_flag:
+            print("saving model")
+        data_model_path = config.data_model_path
+        if config.save_model:
+            save_model(model, data_model_path)
+        if config.debug_flag:
+            print("accuracies")
+        plot_accuracies(history)
+        if config.debug_flag:
+            print("losses")
+        plot_losses(history)
 
     img, label = test_ds[17]
     plt.imshow(img.permute(1, 2, 0))
@@ -349,6 +352,7 @@ def run():
     img_list = ['cans.jpg', 'cardboard.jpg', 'paper_trash.jpg', 'wine_trash.jpg', 'plastic.jpg']
 
     for img in img_list:
+        print(img)
         try:
             predict_external_image(config.external_images, img, transformations, model, dataset, device)
         except Exception as e:
@@ -372,6 +376,9 @@ def predict_external_image(image_dir, image_name, transformations, model, datase
 def save_model(model, save_path):
     torch.save(model.state_dict(), save_path)
 
+def load_model(load_path):
+    torch.load(load_path)
+
 def get_sample_images(image_dir):
     image_path = Path(image_dir)
     urllib.request.urlretrieve(
@@ -386,7 +393,7 @@ def get_sample_images(image_dir):
     urllib.request.urlretrieve(
         "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftinytrashcan.com%2Fwp-content%2Fuploads%2F2018%2F08%2Ftiny-trash-can-bulk-wine-bottle.jpg&f=1&nofb=1",
         image_path.joinpath("wine_trash.jpg"))
-    urllib.request.urlretrieve("http://ourauckland.aucklandcouncil.govt.nz/media/7418/38-94320.jpg",
+    urllib.request.urlretrieve("https://mixedwayproduction.com/wp-content/uploads/2018/11/waste-paper-galler-1.png",
         image_path.joinpath("paper_trash.jpg"))
 
 if __name__ == "__main__":
