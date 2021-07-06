@@ -11,17 +11,20 @@ Users upload an image and the system returns the information it found.
 
 ## Installation
 
-Don't forget to install geckodriver to run tests!
+Don't forget to install **geckodriver** to run tests!
 If on OS X Catalina (10.15) or above, refer to the instructions [here](https://firefox-source-docs.mozilla.org/testing/geckodriver/Notarization.html) to install.
 
-OS X & Linux:
-
+### OS X & Linux:
 ```sh
 pip install -r requirements.txt
 ```
 
-Windows:
+If that doesn't work for **geckodriver**, use [Homebrew](https://docs.brew.sh/Installation):
+```sh
+brew install geckodriver
+```
 
+### Windows:
 ```sh
 pip install -r requirements.txt
 ```
@@ -34,12 +37,12 @@ _For more examples and usage, please refer to the [Wiki][wiki]._
 ## Development setup
 
 ### Setting up workspace
-Create new Conda Env.  
-Pull from Remote / Main. 
-Make sure that you create the recycle_it/data & recycle_it/data/models folders 
-be sure to configure the config.py for each module you are running 
-**IMPORTANT** Ensure that you are always working on a branch, not MAIN.  
-Check PATH. If geckodriver not found, copy it to one of the directions in PATH.
+- Create new Conda Env.  
+- Pull from Remote / Main. 
+- Make sure that you create the recycle_it/data & recycle_it/data/models folders 
+be sure to configure the config.py for each module you are running.  
+- **IMPORTANT** Ensure that you are always working on a branch, not MAIN.  
+- Check PATH. If **geckodriver** not found, copy it to one of the directions in PATH.
 ```sh
 import sys
 
@@ -55,7 +58,7 @@ Then run:
 python recycle_it/manage.py migrate
 ```
 
-### Tests
+## Tests
 To run end-to-end testing run:
 ```sh
 python tests/functional_tests.py
