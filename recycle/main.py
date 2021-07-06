@@ -307,9 +307,9 @@ def run():
 
 
     # model = to_device(get_model(num_classes), device)
-    # if config.debug_flag:
-    #     print("evaluate")
-    # evaluate_results = evaluate(model, val_dl)
+    if config.debug_flag:
+        print("evaluate")
+    evaluate_results = evaluate(model, val_dl)
 
     num_epochs = config.num_epochs
     opt_func = torch.optim.Adam
