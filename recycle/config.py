@@ -13,4 +13,7 @@ shuffle_training = True
 pin_memory = True
 batch_size = 16
 save_model = True
+load_model = True
 external_images = Path(__file__).parent.parent.joinpath('data/external_images/')
+load_data_path = Path(__file__).parent.parent.joinpath('data/models/image_model_2021-07-06.pkl')
+garbage_classes = ['paper', 'metal', 'cardboard', 'trash', 'glass', 'plastic']
