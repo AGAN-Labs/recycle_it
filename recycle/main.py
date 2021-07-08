@@ -278,7 +278,9 @@ def run():
     data_dir = config.data_dir
     transformations = transforms.Compose([transforms.Resize((256, 256)), transforms.ToTensor()])
     dataset = get_data(data_dir, transformations)
-    classes = os.listdir(data_dir)
+    print()
+    # classes = os.listdir(data_dir)
+    classes = config.garbage_classes
     if config.debug_flag:
         print(classes)
         print("get_train_test_split")
@@ -316,7 +318,7 @@ def run():
     lr = config.learning_rate
     if config.load_model:
         print("load_model")
-        load_model(config.load_data_path)
+        load_model(config.load_data_path, device)
     else:
         if config.debug_flag:
             print("history")
@@ -377,8 +379,8 @@ def predict_external_image(image_dir, image_name, transformations, model, datase
 def save_model(model, save_path):
     torch.save(model, save_path)
 
-def load_model(load_path):
-    model = torch.load(load_path)
+def load_model(load_path, device):
+    model = torch.load(load_path, map_location=device)
     model.eval()
 
 def get_sample_images(image_dir):
@@ -395,9 +397,9 @@ def get_sample_images(image_dir):
     urllib.request.urlretrieve(
         "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftinytrashcan.com%2Fwp-content%2Fuploads%2F2018%2F08%2Ftiny-trash-can-bulk-wine-bottle.jpg&f=1&nofb=1",
         image_path.joinpath("wine_trash.jpg"))
-    urllib.request.urlretrieve("https://mixedwayproduction.com/wp-content/uploads/2018/11/waste-paper-galler-1.png",
+    # urllib.request.urlretrieve("https://mixedwayproduction.com/wp-content/uploads/2018/11/waste-paper-galler-1.png",
+    urllib.request.urlretrieve("https://www.recycling.com/wp-content/uploads/2020/03/paper-recycling-header-1536x720.jpg",
         image_path.joinpath("paper_trash.jpg"))
-
 if __name__ == "__main__":
     run()
 
